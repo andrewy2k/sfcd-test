@@ -30,8 +30,11 @@
               "src/styles.less",
               "src/assets/fonts/fontello/css/fontello.css",
               "src/assets/fonts/fontello/css/animation.css",
+              "node_modules/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css"
             ],
             "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"
             ],
             "es5BrowserSupport": true
           },
