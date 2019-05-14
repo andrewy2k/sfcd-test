@@ -1,5 +1,5 @@
 import {Component, OnInit, ElementRef} from '@angular/core';
-import {IQuestion} from '../../models/models';
+import {IQuestion, IQuestionOwner} from '../../models/models';
 import {ApiService} from '../../services/api.service';
 import {animate, animation, useAnimation, style, transition, trigger} from '@angular/animations';
 
@@ -37,7 +37,6 @@ export const slideOutAnimation = animation([
 
 
 export class MainComponent implements OnInit {
-
   questions: IQuestion[] = [];
   selectedQuestion: IQuestion;
   questionsLoadStatus: boolean;
@@ -46,6 +45,7 @@ export class MainComponent implements OnInit {
   currentPage = 1;
   pageSize = 65;
   hasMore: boolean;
+  errorStatus: boolean;
 
   questionViewStatus: boolean;
 
@@ -58,21 +58,49 @@ export class MainComponent implements OnInit {
     this.loadData();
   }
 
+  makeErrorMessage(message: string): void {
+    this.selectedQuestion = {
+      tags: [],
+      owner: null,
+      is_answered: false,
+      accepted_answer_id: 0,
+      view_count: 0,
+      answer_count: 0,
+      score: 0,
+      last_edit_date: 0,
+      last_activity_date: 0,
+      creation_date: 0,
+      question_id: 0,
+      link: '',
+      title: 'Ошибка выполнения запроса',
+      body: message,
+    };
+    this.errorStatus = true;
+    this.questionViewStatus = true;
+  }
+
   openQuestion(item: IQuestion): void {
     if (this.quotaRemaining > 0) {
       this.questionLoadStatus = true;
       this.questionViewStatus = true;
-      this.api.getQuestionById(item.question_id).subscribe(
+      throw this.api.getQuestionById(item.question_id).subscribe(
         data => {
-          this.selectedQuestion = data.items[0];
-          this.quotaRemaining = data.quota_remaining;
+          if (!data.error_id) {
+            this.selectedQuestion = data.items[0];
+            this.quotaRemaining = data.quota_remaining;
+          } else {
+            this.makeErrorMessage('Исчерпан лимит запросов на сервер!!!');
+          }
           this.questionLoadStatus = false;
         },
         error1 => {
           console.log(error1);
+          this.makeErrorMessage('Ошибка выполнения запроса на сервере!!!');
           this.questionLoadStatus = false;
         }
       );
+    } else {
+      this.makeErrorMessage('Исчерпан лимит запросов на сервер!!!');
     }
   }
 
@@ -80,6 +108,7 @@ export class MainComponent implements OnInit {
     setTimeout(() => {
       this.questionViewStatus = false;
       this.selectedQuestion = null;
+      this.errorStatus = false;
     }, 300);
   }
 
@@ -88,6 +117,7 @@ export class MainComponent implements OnInit {
       this.questionsLoadStatus = true;
       this.api.getQuestions(this.pageSize, this.currentPage).subscribe(
         data => {
+          if (!data.error_id) {
           data.items.map((elem) => {
             elem.creation_date = new Date(elem.creation_date * 1000);
           });
@@ -96,13 +126,19 @@ export class MainComponent implements OnInit {
           this.quotaRemaining = data.quota_remaining;
           this.hasMore = data.has_more;
           this.currentPage++;
+          } else {
+            this.makeErrorMessage('Исчерпан лимит запросов на сервер!!!');
+          }
           this.questionsLoadStatus = false;
         },
         error1 => {
           console.log(error1);
+          this.makeErrorMessage('Ошибка выполнения запроса на сервере!!!');
           this.questionsLoadStatus = false;
         }
       );
+    } else {
+      this.makeErrorMessage('Исчерпан лимит запросов на сервер или закончились данные!!!');
     }
   }
 

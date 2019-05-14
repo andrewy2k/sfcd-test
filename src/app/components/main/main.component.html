@@ -4,6 +4,11 @@
     <app-wait [blueColor]="true" [size]="'30px'" [visible]="questionsLoadStatus"></app-wait>
   </span>
 </div>
+<div class="question-head">
+  <div class="question__cell-head question__cell_name">Автор</div>
+  <div class="question__cell-head question__cell_title">Заголовок</div>
+  <div class="question__cell-head question__cell_date-head">Дата</div>
+</div>
 <cdk-virtual-scroll-viewport
   *ngIf="questions.length>0"
   class="questions-c"
@@ -47,7 +52,12 @@
       [innerHtml]='selectedQuestion.body'
     >
     </div>
-    <a href="{{selectedQuestion.link}}" class="link_no_decoration" style="margin-left: 20px">
+    <a
+      *ngIf="!errorStatus"
+      href="{{selectedQuestion.link}}"
+      class="link_no_decoration"
+      style="margin-left: 20px"
+    >
       <div class="question-info__link">Открыть на stackoverflow.com</div>
     </a>
   </ng-container>
