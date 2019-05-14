@@ -1,0 +1,54 @@
+<div class="caption">
+  <span>Список вопросов со Stack Overflow</span>
+  <span style="width: 40px; margin-left: 10px">
+    <app-wait [blueColor]="true" [size]="'30px'" [visible]="questionsLoadStatus"></app-wait>
+  </span>
+</div>
+<cdk-virtual-scroll-viewport
+  *ngIf="questions.length>0"
+  class="questions-c"
+  itemSize="40"
+  (scroll)="checkQuestion($event)"
+>
+  <div class="question" *cdkVirtualFor="let item of questions; let ind = index;"
+       (click)="openQuestion(item)"
+       [attr.data-load-status]="ind===questions.length-15?true:false"
+  >
+    <div class="question__cell question__cell_name">{{item.owner.display_name}}</div>
+    <div class="question__cell question__cell_title" [innerHtml]="item.title"></div>
+    <div class="question__cell question__cell_date">{{item.creation_date | date: 'dd-MM-yyyy, hh:mm'}}</div>
+  </div>
+</cdk-virtual-scroll-viewport>
+
+<!--Полная информация о вопросе-->
+<section
+  class="question-info"
+  *ngIf="questionViewStatus"
+  [@viewQuestionDescription]="questionViewStatus"
+>
+  <div class="question-info__header">
+    <span class="icon-c">
+      <app-wait [blueColor]="true" [size]="'20px'" [visible]="questionLoadStatus"></app-wait>
+     </span>
+    <span
+      class="icon-c"
+      (click)="closeQuestion()"
+    ><i class="icon-cancel-alt"></i></span>
+  </div>
+  <ng-container *ngIf="!questionLoadStatus&&selectedQuestion">
+    <div class="question-info__caption">
+      {{selectedQuestion.title}}
+    </div>
+    <div class="question-info__tags">
+      <span *ngFor="let tag of selectedQuestion.tags">{{tag}}</span>
+    </div>
+    <div
+      class="question-info__text"
+      [innerHtml]='selectedQuestion.body'
+    >
+    </div>
+    <a href="{{selectedQuestion.link}}" class="link_no_decoration" style="margin-left: 20px">
+      <div class="question-info__link">Открыть на stackoverflow.com</div>
+    </a>
+  </ng-container>
+</section>
