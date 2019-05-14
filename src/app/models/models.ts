@@ -31,3 +31,9 @@ export interface IResponceQuestion {
   quota_max: number;
   quota_remaining: number;
 }
+
+export interface IErrorResponce {
+  error_id: number;
+  error_message: string;
+  error_name: string;
+}
